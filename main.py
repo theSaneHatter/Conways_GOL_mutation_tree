@@ -1,5 +1,9 @@
 import numpy as np
 import time
+import cupy as cp
+import timeit
+ 
+arr = cp.array([1,2,3])
 
 def game_of_life(board):
     if len(board.shape) == 1:
@@ -65,11 +69,11 @@ def game_of_life_cuda(board):
 
 # Create a 5x5 board with some initial cells
 board = np.array([
-    [1],
-    [1],
-    [1],
-    [1],
-    [1]
+    [1,0,0,1,0,1,0],
+    [1,0,0,1,0  ,1,0],
+    [1,0,0,1,0,1,0],
+    [1,0,0,1,0,1,0],
+    [1,0,0,1,0,1,0]
 ])
 # Print the initial board
 print("Initial Board:")
@@ -82,11 +86,16 @@ new_board = game_of_life(board)
 print("\nResulting Board:")
 print(new_board)
 
-while True:
-    start = time.time()
-    board = game_of_life(board)
-    end = time.time() - start
-    print(f'time to compute board={round(end,6)}')
-    print('\n')
-    print(board)
-    time.sleep(.25)
+cuda_time = timeit.timeit(lambda: game_of_life_cuda(board), number=1000)
+print('cuda_time',cuda_time)
+normal_time = timeit.timeit(lambda: game_of_life(board), number=1000)
+print('normal_time', normal_time)
+
+# while True:
+#     start = time.time()
+#     board = game_of_life(board)
+#     end = time.time() - start
+#     print(f'time to compute board={round(end,6)}')
+#     print('\n')
+#     print(board)
+#     time.sleep(.25)
