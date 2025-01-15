@@ -25,7 +25,7 @@ def GOL_clock(GOL_arr):
 
     
     
-    board = np.where((board == 2) & (board ==3), 0,board)
+    board = np.where((board == 2) & (board == 3), 0,board)
 
     print(board)
 
