@@ -1,5 +1,4 @@
 import time
-import cupy as cp
 import numpy as np
 import timeit
 
@@ -35,7 +34,9 @@ def GOL_clock(GOL_arr):
     return rectified_board
 
 
-def GOL_clock2(GOL_arr):
+def GOL_clock2():
+    GOL_arr = np.random.randint(0,2,(15,15))
+
     if np.sum(GOL_arr) <= 0:
         print('\033[32mWorning from GOL_clock(): Entered array are all zeros\033[0m')
         return None
@@ -73,9 +74,7 @@ board = [
 board = np.array(board)
 
 print('Original Arr\n',board)
-print('GOL_CLOCK2(board):\n',GOL_clock2(board))
+# print('GOL_CLOCK2(board):\n',GOL_clock2(board))
 
-while True:
-    board = GOL_clock2(board)
-    print('GOL_CLOCK2(board):\n',GOL_clock2(board))
-    time.sleep(1)
+t = time_taken = timeit.timeit(GOL_clock2, number=10000)  # Run 1000 times
+print(t)
