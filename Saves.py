@@ -25,3 +25,38 @@ def game_of_life_cuda(board):
     game_of_life_kernel((rows, cols), (larger_board, new_board))
 
     return cp.asnumpy(new_board)
+
+def game_of_life(board):
+    if len(board.shape) == 1:
+        # Reshape the 1D array into a 2D array
+        dim = int(np.sqrt(len(board)))
+        if dim * dim != len(board):
+            raise ValueError("1D array length must be a perfect square")
+        board = board.reshape((dim, dim))
+
+    # Get the shape of the board
+    rows, cols = board.shape
+
+    # Create a larger board to accommodate the edges
+    larger_board = np.zeros((rows+2, cols+2))
+    
+    # Copy the original board to the center of the larger board
+    larger_board[1:-1, 1:-1] = board
+    
+    # Create a new board to store the next generation
+    new_board = np.copy(board)
+    
+    # Iterate over each cell in the original board
+    for i in range(1, rows+1):
+        for j in range(1, cols+1):
+            # Count the number of live neighbors
+            live_neighbors = np.sum(larger_board[i-1:i+2, j-1:j+2]) - larger_board[i, j]
+            
+            # Apply the rules of Conway's Game of Life
+            if larger_board[i, j] == 1 and (live_neighbors < 2 or live_neighbors > 3):
+                new_board[i-1, j-1] = 0
+            elif larger_board[i, j] == 0 and live_neighbors == 3:
+                new_board[i-1, j-1] = 1
+    
+    return new_board
+

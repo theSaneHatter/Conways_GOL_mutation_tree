@@ -5,39 +5,32 @@ import timeit
  
 arr = cp.array([1,2,3])
 
-def game_of_life(board):
-    if len(board.shape) == 1:
-        # Reshape the 1D array into a 2D array
-        dim = int(np.sqrt(len(board)))
-        if dim * dim != len(board):
-            raise ValueError("1D array length must be a perfect square")
-        board = board.reshape((dim, dim))
 
-    # Get the shape of the board
-    rows, cols = board.shape
+def GOL_clock(GOL_arr=np.random.randint(0,2,(15,15))):
+    if np.sum(GOL_arr) <= 0:
+        print('\033[32mWorning from GOL_clock(): Entered array are all zeros\033[0m')
+        return None
+    rows, colms = GOL_arr.shape
+    board_save = np.zeros((rows+2,colms+2),dtype=int)
+    board_save[1:rows+1,1:colms+1] = GOL_arr[:,:]
+    
 
-    # Create a larger board to accommodate the edges
-    larger_board = np.zeros((rows+2, cols+2))
+    shift_up = np.roll(board_save,1,0)
+    shift_down = np.roll(board_save,-1,0)
+    shift_right = np.roll(board_save,1,1)
+    shift_left = np.roll(board_save,-1,1)
+
+    shift_RU = np.roll(shift_right,1,0)
+    shift_RD = np.roll(shift_right,-1,0)
+    shift_LU = np.roll(shift_left,1,0)
+    shift_LD = np.roll(shift_left,-1,0)
     
-    # Copy the original board to the center of the larger board
-    larger_board[1:-1, 1:-1] = board
+    neighbers = shift_up+shift_down+shift_right+shift_left+shift_RU+shift_RD+shift_LU+shift_LD
+
+    rectified_board = np.where((board_save == 1) & ((neighbers < 2) | (neighbers > 3)), 0, board_save)
+    rectified_board = np.where((board_save == 0) & (neighbers == 3), 1, rectified_board)
     
-    # Create a new board to store the next generation
-    new_board = np.copy(board)
-    
-    # Iterate over each cell in the original board
-    for i in range(1, rows+1):
-        for j in range(1, cols+1):
-            # Count the number of live neighbors
-            live_neighbors = np.sum(larger_board[i-1:i+2, j-1:j+2]) - larger_board[i, j]
-            
-            # Apply the rules of Conway's Game of Life
-            if larger_board[i, j] == 1 and (live_neighbors < 2 or live_neighbors > 3):
-                new_board[i-1, j-1] = 0
-            elif larger_board[i, j] == 0 and live_neighbors == 3:
-                new_board[i-1, j-1] = 1
-    
-    return new_board
+    return rectified_board
 
 
 
@@ -49,27 +42,6 @@ board = np.array([
     [1,0,0,1,0,1,0],
     [1,0,0,1,0,1,0]
 ])
-# Print the initial board
-print("Initial Board:")
-print(board)
 
-# Apply one generation of Conway's Game of Life
-new_board = game_of_life(board)
-
-# Print the resulting board
-print("\nResulting Board:")
-print(new_board)
-
-cuda_time = timeit.timeit(lambda: game_of_life_cuda(board), number=1000)
-print('cuda_time',cuda_time)
-normal_time = timeit.timeit(lambda: game_of_life(board), number=1000)
-print('normal_time', normal_time)
-
-# while True:
-#     start = time.time()
-#     board = game_of_life(board)
-#     end = time.time() - start
-#     print(f'time to compute board={round(end,6)}')
-#     print('\n')
-#     print(board)
-#     time.sleep(.25)
+tim = timeit.timeit(GOL_clock,number=1000000)
+print(tim,'seconds to run') #like  44 sec with 1mil 15x15
